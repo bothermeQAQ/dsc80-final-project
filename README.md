@@ -45,7 +45,7 @@ statistics (gold, XP, CS, kills, etc. at 10 minutes).
 
 In the notebook, I first restrict attention to **team-level** rows, where each row
 represents a single team in a single professional game (`position == "team"`). This
-gives about 13,000 team–game observations across all professional leagues in 2018.
+gives roughly 13,000 team–game observations across all professional leagues in 2018.
 
 I create a new column
 
@@ -68,18 +68,10 @@ From the exploratory data analysis (EDA), a few key patterns emerge:
   distribution is clearly shifted to the right. Teams that are ahead in gold at
   10 minutes are more likely to win, although the two distributions still overlap.
 
-To quantify the league differences more precisely, I compute an aggregated summary for
-the four major leagues:
+### Example univariate Plotly figure
 
-- LCK: mean game length ≈ **36.6** minutes, median ≈ 35.6 minutes  
-- LPL: mean game length ≈ **34.5** minutes, median ≈ 33.6 minutes  
-- LEC: mean game length ≈ **35.0** minutes  
-- LCS: mean game length ≈ **33.1** minutes  
-
-These summaries support the idea that LCK tends to play noticeably longer games than
-other major leagues.
-
-<!-- Example: you can embed interactive Plotly figures generated in the notebook, e.g.:
+The histogram below shows the distribution of game lengths (in minutes) across all
+team–games in the dataset.
 
 <iframe
   src="assets/gamelength_hist.html"
@@ -88,7 +80,29 @@ other major leagues.
   frameborder="0">
 </iframe>
 
--->
+### Example bivariate Plotly figure
+
+The box plot below compares game length across the four major leagues (LCK, LPL, LEC, LCS).
+
+<iframe
+  src="assets/gamelength_by_league.html"
+  width="800"
+  height="500"
+  frameborder="0">
+</iframe>
+
+To quantify the league differences more precisely, I compute an aggregated summary for
+the four major leagues:
+
+| League | Mean length (min) | Median length (min) |
+|--------|-------------------|---------------------|
+| LCK    | ~36.6             | ~35.6               |
+| LPL    | ~34.5             | ~33.6               |
+| LEC    | ~35.0             | ~34.2               |
+| LCS    | ~33.1             | ~32.5               |
+
+These summaries support the idea that LCK tends to play noticeably longer games than
+other major leagues.
 
 ---
 
@@ -133,6 +147,16 @@ These results support the idea that the missingness of `goldat10` is driven by d
 quality (complete vs partial games) rather than by in-game factors like which side the
 team is playing on. The mechanism is definitely **not completely random**, and is at
 least partly explained by observable game characteristics.
+
+As an additional visualization, the Plotly figure below compares the distributions of
+gold at 10 minutes for winning and losing teams (considering only non-missing values).
+
+<iframe
+  src="assets/gold10_by_result.html"
+  width="800"
+  height="500"
+  frameborder="0">
+</iframe>
 
 ---
 
@@ -227,8 +251,7 @@ The main changes are:
   - `kills_diff10 = killsat10 − opp_killsat10`  
   - `deaths_diff10 = deathsat10 − opp_deathsat10`
 - I keep the original early-game statistics and contextual variables, and I train a
-  **Random Forest classifier** with tuned hyperparameters (e.g., 300 trees, minimum
-  samples per split/leaf, etc.).
+  **Random Forest classifier** with tuned hyperparameters.
 
 Using the same type of 80/20 train–test split, the final model achieves:
 
@@ -239,9 +262,9 @@ The final model’s test accuracy is slightly higher than the baseline’s (0.69
 while its training accuracy is much higher. This suggests that the Random Forest with
 difference features is more expressive and can fit the data more closely, but many of
 the easily exploitable patterns were already captured by the simpler logistic
-regression. Still, from an interpretability standpoint, the difference features more
-directly encode the idea of a “lead” at 10 minutes, which aligns well with how players
-and analysts think about game state.
+regression. From an interpretability standpoint, the difference features more directly
+encode the idea of a “lead” at 10 minutes, which aligns well with how players and
+analysts think about game state.
 
 ---
 
